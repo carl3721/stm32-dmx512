@@ -1,0 +1,8 @@
+#summary Stm32Dmx512 blog
+
+= Blog =
+
+== Update 2011-12-10 ==
+The project has been started on Google Code. Parts of the wiki structure have been put in place.
+
+Work on the build system has begun.

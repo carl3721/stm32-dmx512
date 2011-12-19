@@ -2,6 +2,11 @@
 
 = Blog =
 
+== Update 2011-12-19 (2) ==
+Committed first drop of the code. The DMX 512 communication is implemented. The application runs an RGB color wheel on channels 1-3 of the DMX512 bus.
+
+You can find the .hex file [http://users.telenet.be/rsq/stm32-dmx512-r6_debug.hex here].
+
 == Update 2011-12-19 ==
 I have received the boards from Olimex, and I am coding the DMX controller.
 

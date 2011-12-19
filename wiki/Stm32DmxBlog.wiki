@@ -2,6 +2,21 @@
 
 = Blog =
 
+== Update 2011-12-19 ==
+I have received the boards from Olimex, and I am coding the DMX controller.
+
+The DMX protocol is implemented, and I can send colors to my RGB dimmer and led strip:
+
+http://users.telenet.be/rsq/IMG_20111219_135042.jpg
+http://users.telenet.be/rsq/IMG_20111219_135052.jpg
+
+The RGB dimmer used is one of these:
+http://www.ebay.com/itm/DMX512-PX-Decoder-Driver-9A-Amplifier-12V-24V-RGB-LED-/170725894859?pt=UK_ConElec_LightingLEDsStrobes_RL&hash=item27c00e6acb#ht_3070wt_1165
+
+It drives a standard RGB LED strip.
+
+I am currently working on code cleanup and documenting the build system. A commit should happen later today.
+
 == Update 2011-12-10 ==
 The project has been started on Google Code. Parts of the wiki structure have been put in place.
 

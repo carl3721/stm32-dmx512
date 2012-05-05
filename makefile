@@ -48,12 +48,12 @@ OOCDDIR :=
 # The configuration files for openocd.
 #
 # Just list the files here separated by spaces.
-OOCDCFGS := target/stm32.cfg ngx_jtag.cfg
+OOCDCFGS := interface/ngxtech.cfg target/stm32f1x.cfg
 
 # The commands for openocd to execute.
 #
 # Each command must be specified in the -c "..." format.
-OOCDCMDS = -c "init" -c "reset halt" -c "stm32x mass_erase 0" -c "flash write_image $(HEX)" -c "reset run" -c "shutdown"
+OOCDCMDS = -c "init" -c "reset halt" -c "stm32f1x mass_erase 0" -c "flash write_image $(HEX)" -c "reset run" -c "shutdown"
 
 # The target architecture.
 ARCH := -mcpu=cortex-m3 -mthumb

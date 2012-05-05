@@ -2,6 +2,13 @@
 
 = Blog =
 
+== Update 2012-05-05 ==
+Modified the project for development on Ubuntu 12.04 LTS. The openocd configurations have been changed to use the built-in scripts. I am now also using the ARM GCC from the launchpad project. [https://launchpad.net/gcc-arm-embedded] 
+
+I swapped compilers because this compiler does not require the user to supply his email to be able to download it.
+
+My version of the compiler was built from the sources, compiled for 64 bit machines. The project should work without issues on the prebuilt 32bit binary version, although I have not tested this.
+
 == Update 2011-12-19 (2) ==
 Committed first drop of the code. The DMX 512 communication is implemented. The application runs an RGB color wheel on channels 1-3 of the DMX512 bus.
 

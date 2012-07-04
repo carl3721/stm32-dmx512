@@ -31,6 +31,7 @@
  * -------------------- Local Includes -----------------------------------------
  */
 
+#include "protocol.h"
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_rcc.h"
@@ -199,6 +200,10 @@
         while(!(USART2->SR & (1 << 6))) { }
 
 /*
+ * -------------------- Type definitions ---------------------------------------
+ */
+
+/*
  * -------------------- Global variables ---------------------------------------
  */
 
@@ -209,18 +214,33 @@
  * protocol.
  * 
  * Please note that there are 513 places in this buffer. The byte at position 0
- * is the start code, which is allways 0.
+ * is the start code, which is always 0.
  * 
  * See the DMX 512 spec for more information.
  */
 uint8_t dmx_data[513];
+
+/**
+ * @brief Update flag. This flag indicates that the DMX devices in the
+ * field must be updated.
+ */
+volatile uint8_t update;
+
+/**
+ * @brief Divider counter for the 25Hz signal.
+ */
+volatile uint8_t divider;
+
+/*
+ * -------------------- Prototypes ---------------------------------------------
+ */
 
 /*
  * -------------------- Method implementations ---------------------------------
  */
 
 void init() {
-    
+
     /*
      * Step 1: Enable the various hardware devices needed for the application.
      */
@@ -233,39 +253,56 @@ void init() {
 
     // enable USART1
     RCC_APB2PeriphClockCmd(RCC_APB2ENR_USART1EN, ENABLE);
-    
+
     // enable TIM2
     RCC_APB1PeriphClockCmd(RCC_APB1ENR_TIM2EN, ENABLE);
-    
+
     /*
-     * Step 2: Set the pin configuratons for all required pins.
+     * Step 2: Set the pin configurations for all required pins.
      */
-    
+
     // configure USART1 pins: TX in alternate function push pull
     GPIO_InitTypeDef pinCfg;
     pinCfg.GPIO_Mode = GPIO_Mode_AF_PP;
     pinCfg.GPIO_Pin = GPIO_Pin_9;
     pinCfg.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOA, &pinCfg);
-    
+
     // configure runled pin
     pinCfg.GPIO_Mode = GPIO_Mode_Out_PP;
     pinCfg.GPIO_Pin = GPIO_Pin_12;
     GPIO_Init(GPIOC, &pinCfg);
-    
+
     // configure PA4 pin for output
     pinCfg.GPIO_Pin = GPIO_Pin_4;
     GPIO_Init(GPIOA, &pinCfg);
-    
+
     // configure PA5 pin for output
     pinCfg.GPIO_Pin = GPIO_Pin_5;
     GPIO_Init(GPIOA, &pinCfg);
-    
+
+    // configure USART2 pins: PA0-WKUP/USART2_CTS
+    pinCfg.GPIO_Mode = GPIO_Mode_AF_PP;
+    pinCfg.GPIO_Pin = GPIO_Pin_0;
+    GPIO_Init(GPIOA, &pinCfg);
+
+    // configure USART2 pins: PA1/USART2_RTS
+    pinCfg.GPIO_Pin = GPIO_Pin_1;
+    GPIO_Init(GPIOA, &pinCfg);
+
+    // configure USART2 pins: PA2/USART2_TX
+    pinCfg.GPIO_Pin = GPIO_Pin_2;
+    GPIO_Init(GPIOA, &pinCfg);
+
+    // configure USART2 pins: PA3/USART2_RX
+    pinCfg.GPIO_Pin = GPIO_Pin_1;
+    GPIO_Init(GPIOA, &pinCfg);
+
     /*
      * Step 3: Configure USART2 for communication to the PC, and
      *         USART1 for communication on the DMX line.
      */
-    
+
     // configure USART1
     USART_InitTypeDef usartCfg;
     usartCfg.USART_BaudRate = 250000;
@@ -275,10 +312,27 @@ void init() {
     usartCfg.USART_StopBits = USART_StopBits_2;
     usartCfg.USART_WordLength = USART_WordLength_8b;
     USART_Init(USART1, &usartCfg);
-    
+
     // enable USART1
     USART_Cmd(USART1, ENABLE);
-    
+
+    // configure USART2
+    // Please note that this USART is configured to use RTS/CTS hardware
+    // flow control.
+    // The use of flow control implies that you must close the solder
+    // bridges on the PCB of the STM32-P103 development board as seen in the
+    // schematic.
+    usartCfg.USART_BaudRate = 38400;
+    usartCfg.USART_HardwareFlowControl = USART_HardwareFlowControl_RTS_CTS;
+    usartCfg.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+    usartCfg.USART_Parity = USART_Parity_No;
+    usartCfg.USART_StopBits = USART_StopBits_1;
+    usartCfg.USART_WordLength = USART_WordLength_8b;
+    USART_Init(USART2, &usartCfg);
+
+    // enable USART2
+    USART_Cmd(USART2, ENABLE);
+
     /*
      * Step 4: Interrupt configuration. 
      */
@@ -287,61 +341,52 @@ void init() {
     SysTick_Config(SystemCoreClock / 1000);
 }
 
-volatile uint8_t update;
-
-volatile uint8_t divider;
+/**
+ * @brief System tick interrupt handler.
+ */
 void SysTick_Handler() {
     divider++;
     if (divider == 40) {
         divider = 0;
         update = 1;
     }
+    protocol_tick();
 }
 
-uint16_t wheel;
-
 int main() {
-    
+
     // initialize the hardware
     init();
-    
-    // initialize color wheel
-    dmx_data[1] = 0x00;
-    dmx_data[2] = 0x00;
-    dmx_data[3] = 0xFF;
-    
+
     // application main loop
-    while(1) {
-        
+    while (1) {
+
         /*
-         * Update the DMX value of the connected devices if needed.
+         * Section 1: deal with the communications.
+         */
+
+        // check if there are bytes in the rx register
+        if (USART2->SR & USART_FLAG_RXNE) {
+
+            // read the byte, this resets the RXNE flag
+            uint8_t byte = USART2->DR;
+
+            // send the byte to the protocol
+            protocol_receive(byte);
+        }
+
+        /*
+         * Section 2: Update the DMX value of the connected devices if needed.
          * The update is triggered at 25 Hz by the @ref SysTick_Handler.
          */
-        
+
         // if the periodic update of the DMX devices has been triggered,
         // run the update
         if (update) {
 
             // reset the update flag first
             update = 0;
- 
-            // calculate color wheel colors
-            if (wheel <= 255) {
-                dmx_data[1] = wheel;
-                dmx_data[2] = 0;
-                dmx_data[3] = 255 - wheel;
-            } else if (255 < wheel && wheel <= 511) {
-                dmx_data[1] = 255 - (wheel - 256);
-                dmx_data[2] = wheel - 256;
-                dmx_data[3] = 0;
-            } else if (511 < wheel && wheel <= 767) {
-                dmx_data[1] = 0;
-                dmx_data[2] = 255 - (wheel - 512);
-                dmx_data[3] = wheel - 512;
-            } 
-            wheel++;
-            wheel %= 768;
-            
+
             // toggle the run led to indicate that the main loop is alive
             toggle_runled();
 
@@ -371,7 +416,7 @@ int main() {
 
                 // transmit the byte with a blocking send
                 usart1_tx_and_wait(dmx_data[i]);
-                
+
             }
 
             // wait one additional character time before releasing the line
@@ -389,4 +434,51 @@ int main() {
         }
     }
     return 0;
+}
+
+void app_set_rgb(uint16_t addr, uint8_t r, uint8_t g, uint8_t b) {
+    
+    // save the colors in the dmx data
+    dmx_data[addr] = r;
+    dmx_data[addr + 1] = g;
+    dmx_data[addr + 2] = b;
+    
+    // tell the protocol that we are done
+    protocol_set_rgb_done(addr);
+}
+
+void app_get_rgb(uint16_t addr) {
+    
+    // get the dmx data
+    uint8_t red = dmx_data[addr];
+    uint8_t green = dmx_data[addr + 1];
+    uint8_t blue = dmx_data[addr + 2];
+    
+    // send the data to the protocol
+    protocol_get_rgb_done(addr, red, green, blue);
+}
+
+void app_set(uint16_t from, uint16_t to, uint8_t c) {
+    
+    // save the dmx data
+    for (uint16_t i = from; i <= to; i++) {
+        dmx_data[i] = c;
+    }
+    
+    // tell the protocol that we are done
+    protocol_set_done(from, to);
+}
+
+void app_get(uint16_t addr) {
+    
+    // get the dmx data
+    uint8_t col = dmx_data[addr];
+    
+    // send the data to the protocol
+    protocol_get_done(addr, col);
+}
+
+void app_send_byte(uint8_t byte) {
+    // send the byte out over usart2 in a blocking way
+    usart2_tx_and_wait(byte);
 }

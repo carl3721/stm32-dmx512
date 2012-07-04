@@ -21,6 +21,8 @@
 # This file is used for configuration of the build system.
 
 SRCS += \
-	src/main.c
+    src/main.c \
+    src/protocol.c
 
-HDRS +=
+HDRS += \
+    src/protocol.h

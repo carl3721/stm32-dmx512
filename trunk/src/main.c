@@ -253,6 +253,9 @@ void init() {
 
     // enable USART1
     RCC_APB2PeriphClockCmd(RCC_APB2ENR_USART1EN, ENABLE);
+    
+    // enable USART2
+    RCC_APB1PeriphClockCmd(RCC_APB1ENR_USART2EN, ENABLE);
 
     // enable TIM2
     RCC_APB1PeriphClockCmd(RCC_APB1ENR_TIM2EN, ENABLE);
@@ -374,7 +377,7 @@ int main() {
             // send the byte to the protocol
             protocol_receive(byte);
         }
-
+        
         /*
          * Section 2: Update the DMX value of the connected devices if needed.
          * The update is triggered at 25 Hz by the @ref SysTick_Handler.
@@ -383,7 +386,7 @@ int main() {
         // if the periodic update of the DMX devices has been triggered,
         // run the update
         if (update) {
-
+            
             // reset the update flag first
             update = 0;
 

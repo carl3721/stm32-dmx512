@@ -2,6 +2,17 @@
 
 = Blog =
 
+== Update 2012-07-12 ==
+Today, I committed a work in progress patch to implement the protocol for talking to the DMX controller via the serial UART.
+
+Communication will use hardware flow control to preserve the accurate timings of the DMX packets that have to be sent out.
+
+*Please note*, in order to use the RTS/CTS flow control on the development board, 2 solder bridges must be closed to connect the lines. Please refer to the schematics to find out which ones I mean.
+
+I have ordered an STM32-P407 development board from Olimex via eBay. The plan is to have this P407 board talk to 2 STM32-P103 boards via the UARTS, and expose an interface for controlling the 2 DMX universes via Ethernet.
+
+It is currently undecided if I will develop a protocol for the Ethernet of the P407, or if I will use a web server to control the DMX channels.
+
 == Update 2012-05-05 ==
 Modified the project for development on Ubuntu 12.04 LTS. The openocd configurations have been changed to use the built-in scripts. I am now also using the ARM GCC from the launchpad project. [https://launchpad.net/gcc-arm-embedded] 
 

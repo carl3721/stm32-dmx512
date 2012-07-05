@@ -285,11 +285,12 @@ void init() {
     GPIO_Init(GPIOA, &pinCfg);
 
     // configure USART2 pins: PA0-WKUP/USART2_CTS
-    pinCfg.GPIO_Mode = GPIO_Mode_AF_PP;
+    pinCfg.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     pinCfg.GPIO_Pin = GPIO_Pin_0;
     GPIO_Init(GPIOA, &pinCfg);
 
     // configure USART2 pins: PA1/USART2_RTS
+    pinCfg.GPIO_Mode = GPIO_Mode_AF_PP;
     pinCfg.GPIO_Pin = GPIO_Pin_1;
     GPIO_Init(GPIOA, &pinCfg);
 
@@ -298,7 +299,8 @@ void init() {
     GPIO_Init(GPIOA, &pinCfg);
 
     // configure USART2 pins: PA3/USART2_RX
-    pinCfg.GPIO_Pin = GPIO_Pin_1;
+    pinCfg.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    pinCfg.GPIO_Pin = GPIO_Pin_3;
     GPIO_Init(GPIOA, &pinCfg);
 
     /*

@@ -393,9 +393,6 @@ void init() {
     // enable TIM3 interrupt and set priority
     NVIC_SetPriority(TIM3_IRQn, 2);
     NVIC_EnableIRQ(TIM3_IRQn);
-
-    // set SysTick interrupt as higher priority then USART interrupt
-    NVIC_SetPriority(SysTick_IRQn, 3);
 }
 
 /**
@@ -423,7 +420,9 @@ int main() {
         if (dmx_sent) {
             dmx_sent = 0;
 
+/*
             toggle_runled();
+*/
             
             // send tick to the protocol, 40 milliseconds have lapsed
             protocol_tick();
@@ -433,7 +432,7 @@ int main() {
 }
 
 void app_set_rgb(uint16_t addr, uint8_t r, uint8_t g, uint8_t b) {
-
+   
     // save the colors in the DMX data
     dmx_data[addr] = r;
     dmx_data[addr + 1] = g;

@@ -218,6 +218,7 @@ void protocol_receive(uint8_t byte) {
 }
 
 uint8_t protocol_lrc(uint8_t* data, uint8_t length) {
+/*
     // code snatched from wikipedia
     uint8_t lrc = 0;
     while (length > 0) {
@@ -225,6 +226,8 @@ uint8_t protocol_lrc(uint8_t* data, uint8_t length) {
         length--;
     }
     return ((~lrc) + 1);
+*/
+    return 0;
 }
 
 void protocol_process_message(protocol_message_u* message) {
@@ -344,4 +347,24 @@ void protocol_set_done(uint16_t from, uint16_t to) {
 
 void protocol_get_done(uint16_t addr, uint8_t c) {
     // TODO: implement me
+}
+
+void protocol_remote_set_rgb(uint16_t addr, uint8_t r, uint8_t g, uint8_t b) {
+    
+    // create the set RGB message
+    protocol_message_u message;
+    for (uint8_t i = 0; i < PROTOCOL_MESSAGE_SIZE; i++) {
+        message.data[i] = 0;
+    }
+    message.fields.set = 1;
+    message.fields.from = addr;
+    message.fields.to = 0;
+    message.fields.col_red = r;
+    message.fields.green = g;
+    message.fields.blue = b;
+    
+    // send the message
+    protocol_send_message(&message);
+    
+    // TODO: set up a check to see if the message is ACK-ed properly
 }

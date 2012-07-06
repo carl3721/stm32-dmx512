@@ -21,8 +21,6 @@
 # This file is used for configuration of the build system.
 
 SRCS += \
-    dmx-p103/main.c \
-    dmx-p103/protocol.c
+    dmx-p103/main.c
 
-HDRS += \
-    dmx-p103/protocol.h
+HDRS += 

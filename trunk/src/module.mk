@@ -22,7 +22,9 @@
 
 SRCS += \
     src/main.c \
-    src/protocol.c
+    src/protocol.c \
+    src/circularbuffer_u8.c
 
 HDRS += \
-    src/protocol.h
+    src/protocol.h \
+    src/circularbuffer_u8.h

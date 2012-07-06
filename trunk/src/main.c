@@ -31,6 +31,7 @@
  * -------------------- Local Includes -----------------------------------------
  */
 
+#include "circularbuffer_u8.h"
 #include "protocol.h"
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
@@ -199,6 +200,11 @@
         USART2->DR = X; \
         while(!(USART2->SR & (1 << 6))) { }
 
+/**
+ * @brief Buffer size for the USART2 tx and rx buffer.
+ */
+#define USART2_BUFFER_SIZE 256
+
 /*
  * -------------------- Type definitions ---------------------------------------
  */
@@ -230,6 +236,26 @@ volatile uint8_t update;
  * @brief Divider counter for the 25Hz signal.
  */
 volatile uint8_t divider;
+
+/**
+ * @brief Backing array for the USART2 tx buffer.
+ */
+volatile uint8_t usart2_tx_arr[USART2_BUFFER_SIZE];
+
+/**
+ * @brief Backing array for the USART2 rx buffer.
+ */
+volatile uint8_t usart2_rx_arr[USART2_BUFFER_SIZE];
+
+/**
+ * @brief USART2 tx circular buffer.
+ */
+circularbuffer_u8_s usart2_tx_buffer;
+
+/**
+ * @brief USART2 rx circular buffer.
+ */
+circularbuffer_u8_s usart2_rx_buffer;
 
 /*
  * -------------------- Prototypes ---------------------------------------------
@@ -338,6 +364,10 @@ void init() {
     // enable USART2
     USART_Cmd(USART2, ENABLE);
 
+    // initialize the rx and tx buffer for USART2
+    circularbuffer_u8_init(&usart2_rx_buffer, USART2_BUFFER_SIZE, usart2_rx_arr);
+    circularbuffer_u8_init(&usart2_tx_buffer, USART2_BUFFER_SIZE, usart2_tx_arr);
+    
     /*
      * Step 4: Interrupt configuration. 
      */
@@ -358,6 +388,14 @@ void SysTick_Handler() {
     protocol_tick();
 }
 
+/**
+ * @brief Application entry point.
+ * 
+ * Called by the default reset handler. The main is built as a perpetual while
+ * loop. This method should never return.
+ * 
+ * @return Should never return.
+ */
 int main() {
 
     // initialize the hardware

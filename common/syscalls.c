@@ -21,79 +21,88 @@
 
 /* This file holds the implementation of newlib syscalls. */
 
-#include <stdio.h>
 #include <stdarg.h>
-#include <sys/types.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <sys/stat.h>
-#include "stm32f10x.h"
+#include <sys/types.h>
+
+/**
+ * @brief  Return the Main Stack Pointer
+ *
+ * @return Main Stack Pointer
+ *
+ * Return the current value of the MSP (main stack pointer)
+ * Cortex processor register
+ */
+extern uint32_t __get_MSP(void);
 
 #undef errno
 extern int errno;
 extern int _heap_start;
 
 void abort(void) {
-	/* Abort called */
-	while (1)
-		;
+    /* Abort called */
+    while (1) {
+    }
 }
 
 caddr_t _sbrk(int incr) {
-	static unsigned char *heap_end = NULL;
-	unsigned char *prev_heap;
+    static unsigned char *heap_end = NULL;
+    unsigned char *prev_heap;
 
-	if (heap_end == NULL) {
-		heap_end = (unsigned char *) &_heap_start;
-	}
-	
-	unsigned char *stack_bottom = (unsigned char *) __get_MSP();
-	
-	if (heap_end + incr >  stack_bottom) {
-		// _write (STDERR_FILENO, "Heap and stack collision\n", 25);
-		// errno = ENOMEM;
-		// return  (caddr_t) -1;
-		abort();
-	}
-	
-	prev_heap = heap_end;
-	heap_end += incr;
+    if (heap_end == NULL) {
+        heap_end = (unsigned char *) &_heap_start;
+    }
 
-	return (caddr_t) prev_heap;
+    unsigned char *stack_bottom = (unsigned char *) __get_MSP();
+
+    if (heap_end + incr > stack_bottom) {
+        // _write (STDERR_FILENO, "Heap and stack collision\n", 25);
+        // errno = ENOMEM;
+        // return  (caddr_t) -1;
+        abort();
+    }
+
+    prev_heap = heap_end;
+    heap_end += incr;
+
+    return (caddr_t) prev_heap;
 }
 
 int link(char *old, char *new) {
-	return -1;
+    return -1;
 }
 
 int _close(int file) {
-	return -1;
+    return -1;
 }
 
 int _fstat(int file, struct stat *st) {
-	st->st_mode = S_IFCHR;
-	return 0;
+    st->st_mode = S_IFCHR;
+    return 0;
 }
 
 int _isatty(int file) {
-	return 1;
+    return 1;
 }
 
 int _lseek(int file, int ptr, int dir) {
-	return 0;
+    return 0;
 }
 
 int _read(int file, char *ptr, int len) {
-	return 0;
+    return 0;
 }
 
 int _write(int file, char *ptr, int len) {
-	return len;
+    return len;
 }
 
 // needed by __libc_init_array(), which is called in the startup code.
+
 void _init() {
 }
 
 void _fini() {
 }
-
-/* ------------------------------- End Of File ------------------------------ */

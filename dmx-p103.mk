@@ -21,11 +21,17 @@
 # This file is used for configuration of the build system.
 
 # The name of the project
-export PROJECT_NAME := stm32-dmx512
+export PROJECT_NAME := dmx-p103
 
 # List of all the subdirectories that should be included in the build.
 # Each directory will be searched for a recursive makefile.
-SUBDIRS := src cmsis stmlib stmlib/inc stmlib/src util
+SUBDIRS := \
+	dmx-p103 \
+	cmsis-stm32f10x \
+	stmlib-stm32f10x \
+	stmlib-stm32f10x/inc \
+	stmlib-stm32f10x/src \
+	common
 
 # The compilation mode. Choose between "debug" and "release".
 MODE ?= debug
@@ -33,7 +39,7 @@ MODE ?= debug
 # The doxygen configuration file
 DOXYFILE := doxyfile
 
-# The directory holding the sourcery codebench ARM toolchain.
+# The directory holding the ARM toolchain.
 # Please note that a trailing / must be included in this path
 # 
 # If the tools can be found on your $PATH, leave this variable empty
@@ -48,7 +54,8 @@ OOCDDIR :=
 # The configuration files for openocd.
 #
 # Just list the files here separated by spaces.
-OOCDCFGS := interface/ngxtech.cfg target/stm32f1x.cfg
+#OOCDCFGS := interface/ngxtech.cfg target/stm32f1x.cfg
+OOCDCFGS := interface/olimex-arm-usb-ocd.cfg target/stm32f1x.cfg
 
 # The commands for openocd to execute.
 #

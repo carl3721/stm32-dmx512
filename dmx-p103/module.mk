@@ -20,26 +20,11 @@
 
 # This file is used for configuration of the build system.
 
-HDRS += stmlib/inc/stm32f10x_cec.h \
-	stmlib/inc/stm32f10x_bkp.h \
-	stmlib/inc/stm32f10x_exti.h \
-	stmlib/inc/stm32f10x_crc.h \
-	stmlib/inc/misc.h \
-	stmlib/inc/stm32f10x_adc.h \
-	stmlib/inc/stm32f10x_wwdg.h \
-	stmlib/inc/stm32f10x_pwr.h \
-	stmlib/inc/stm32f10x_flash.h \
-	stmlib/inc/stm32f10x_gpio.h \
-	stmlib/inc/stm32f10x_rtc.h \
-	stmlib/inc/stm32f10x_spi.h \
-	stmlib/inc/stm32f10x_tim.h \
-	stmlib/inc/stm32f10x_sdio.h \
-	stmlib/inc/stm32f10x_usart.h \
-	stmlib/inc/stm32f10x_fsmc.h \
-	stmlib/inc/stm32f10x_iwdg.h \
-	stmlib/inc/stm32f10x_dac.h \
-	stmlib/inc/stm32f10x_rcc.h \
-	stmlib/inc/stm32f10x_can.h \
-	stmlib/inc/stm32f10x_dma.h \
-	stmlib/inc/stm32f10x_dbgmcu.h \
-	stmlib/inc/stm32f10x_i2c.h 
+SRCS += \
+    dmx-p103/main.c \
+    dmx-p103/protocol.c \
+    dmx-p103/circularbuffer_u8.c
+
+HDRS += \
+    dmx-p103/protocol.h \
+    dmx-p103/circularbuffer_u8.h

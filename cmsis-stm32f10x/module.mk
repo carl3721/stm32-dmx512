@@ -20,26 +20,10 @@
 
 # This file is used for configuration of the build system.
 
-SRCS += stmlib/src/misc.c \
-	stmlib/src/stm32f10x_adc.c \
-	stmlib/src/stm32f10x_bkp.c \
-	stmlib/src/stm32f10x_can.c \
-	stmlib/src/stm32f10x_cec.c \
-	stmlib/src/stm32f10x_crc.c \
-	stmlib/src/stm32f10x_dac.c \
-	stmlib/src/stm32f10x_dbgmcu.c \
-	stmlib/src/stm32f10x_dma.c \
-	stmlib/src/stm32f10x_exti.c \
-	stmlib/src/stm32f10x_flash.c \
-	stmlib/src/stm32f10x_fsmc.c \
-	stmlib/src/stm32f10x_gpio.c \
-	stmlib/src/stm32f10x_i2c.c \
-	stmlib/src/stm32f10x_iwdg.c \
-	stmlib/src/stm32f10x_pwr.c \
-	stmlib/src/stm32f10x_rcc.c \
-	stmlib/src/stm32f10x_rtc.c \
-	stmlib/src/stm32f10x_sdio.c \
-	stmlib/src/stm32f10x_spi.c \
-	stmlib/src/stm32f10x_tim.c \
-	stmlib/src/stm32f10x_usart.c \
-	stmlib/src/stm32f10x_wwdg.c  
+SRCS += cmsis-stm32f10x/core_cm3.c \
+	cmsis-stm32f10x/startup_stm32f10x.c \
+	cmsis-stm32f10x/system_stm32f10x.c
+
+HDRS += cmsis-stm32f10x/core_cm3.h \
+	cmsis-stm32f10x/stm32f10x.h \
+	cmsis-stm32f10x/system_stm32f10x.h

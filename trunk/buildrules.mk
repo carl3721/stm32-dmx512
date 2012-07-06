@@ -53,7 +53,12 @@ CFLAGS       = $(COMMONFLAGS) -std=gnu99
 CPPFLAGS     = $(COMMONFLAGS) -fno-rtti
 ASFLAGS      = -Wall -O$(OPTIMISATION) -c $(ARCH)
 LFLAGS       = -nostartfiles -nodefaultlibs -nostdlib -Xlinker --gc-sections -fno-exceptions -Wl,-Map,$(MAP) $(ARCH)
-LDSCRIPT    ?= link.ld
+ifeq ($(BOARD),p103)
+LDSCRIPT     = link-p103.ld
+endif
+ifeq ($(BOARD),p407)
+LDSCRIPT     = link-p407.ld
+endif
 endif
 
 # debug specific tool settings
@@ -64,7 +69,12 @@ CFLAGS       = $(COMMONFLAGS) -std=gnu99
 CPPFLAGS     = $(COMMONFLAGS) -fno-rtti
 ASFLAGS      = -Wall -O$(OPTIMISATION) -c $(ARCH) -g3 -gdwarf-2
 LFLAGS       = -nostartfiles -nodefaultlibs -nostdlib -Xlinker --gc-sections -fno-exceptions -Wl,-Map,$(MAP) $(ARCH)
-LDSCRIPT    ?= link_debug.ld
+ifeq ($(BOARD),p103)
+LDSCRIPT    ?= link_debug-p103.ld
+endif
+ifeq ($(BOARD),p407)
+LDSCRIPT     = link_debug-p407.ld
+endif
 endif
 
 # common tool settings
@@ -117,6 +127,8 @@ info:
 	@echo 'Build information'
 	@echo 'Project name   : $(PROJECT_NAME)'
 	@echo 'Build mode     : $(MODE)'
+	@echo 'Target board   : $(BOARD)'
+	@echo 'Linker script  : $(LDSCRIPT)'
 	@echo 'Subdirectories : $(SUBDIRS)'
 	@echo 'Sources        : $(SRCS)'
 	@echo 'Headers        : $(HDRS)'

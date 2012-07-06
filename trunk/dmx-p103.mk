@@ -1,4 +1,4 @@
-# makefile
+# dmx-p103.mk
 # 
 # STM32 DMX512
 # Copyright (C) 2011 Erik Van Hamme, all rights reserved
@@ -35,6 +35,9 @@ SUBDIRS := \
 
 # The compilation mode. Choose between "debug" and "release".
 MODE ?= debug
+
+# The target board that the code should run on. Choose between "p103" and "p407"
+BOARD ?= p103
 
 # The doxygen configuration file
 DOXYFILE := doxyfile

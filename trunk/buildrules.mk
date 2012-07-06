@@ -37,7 +37,6 @@ CC := $(TOOLSDIR)arm-none-eabi-gcc
 OC := $(TOOLSDIR)arm-none-eabi-objcopy
 OD := $(TOOLSDIR)arm-none-eabi-objdump
 OS := $(TOOLSDIR)arm-none-eabi-size
-AR := $(TOOLSDIR)arm-none-eabi-ar
 OPENOCD := $(OOCDDIR)openocd
 
 # doxygen executable
@@ -72,7 +71,6 @@ endif
 OCFLAGS := -O ihex
 ODFLAGS := -h -S
 OSFLAGS := 
-ARFLAGS := rcs
 
 # include folders
 INCLUDE := $(patsubst %, -I %, $(SUBDIRS))
@@ -128,7 +126,7 @@ info:
 # rule for creating the hex file
 $(HEX): $(ELF)
 	@echo 'Building target: $@'
-	@echo 'Invoking: ARM Sourcery Linux GNU Create Flash Image'
+	@echo 'Invoking: ARM Linux GNU Create Flash Image'
 	$(OC) $(OCFLAGS) $(ELF) "$(HEX)"
 	@echo 'Finished building: $@'
 	@echo ' '
@@ -136,7 +134,7 @@ $(HEX): $(ELF)
 # rule for creating the listing file
 $(LST): $(ELF)
 	@echo 'Building target: $@'
-	@echo 'Invoking: ARM Sourcery Linux GNU Create Listing'
+	@echo 'Invoking: ARM Linux GNU Create Listing'
 	$(OD) $(ODFLAGS) $(ELF) > "$(LST)"
 	@echo 'Finished building: $@'
 	@echo ' '
@@ -144,14 +142,14 @@ $(LST): $(ELF)
 # rule for creating the elf file (linking)
 $(ELF): $(LDSCRIPT) $(OBJS) $(USER_OBJ)
 	@echo 'Building target: $@'
-	@echo 'Invoking: ARM Sourcery Linux GCC C Linker'
+	@echo 'Invoking: ARM Linux GCC C Linker'
 	$(CC) -T "$(LDSCRIPT)" $(LFLAGS) -o "$(ELF)" $(OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # target for printing the sizes
 size: $(ELF)
-	@echo 'Invoking: ARM Sourcery Linux GNU Print Size'
+	@echo 'Invoking: ARM Linux GNU Print Size'
 	$(OS) $(OSFLAGS) $(ELF)
 	@echo 'Finished building: $@'
 	@echo ' '
@@ -198,7 +196,7 @@ endif
 # pattern rule for compiling .c files
 $(BUILDDIR)/%.c.o : %.c | $(FOLDERS)
 	@echo 'Compiling file: $<'
-	@echo 'Invoking: ARM Sourcery Linux GCC C Compiler'
+	@echo 'Invoking: ARM Linux GCC C Compiler'
 	$(CC) $(INCLUDE) $(EXT_DEFINES) $(CFLAGS) -o "$@" "$<"
 	@echo 'Finished compiling: $<'
 	@echo ' '
@@ -206,7 +204,7 @@ $(BUILDDIR)/%.c.o : %.c | $(FOLDERS)
 # pattern rule for compiling .cpp files
 $(BUILDDIR)/%.cpp.o : %.cpp | $(FOLDERS)
 	@echo 'Compiling file: $<'
-	@echo 'Invoking: ARM Sourcery Linux GCC C++ Compiler'
+	@echo 'Invoking: ARM Linux GCC C++ Compiler'
 	$(CC) $(INCLUDE) $(EXT_DEFINES) $(CPPFLAGS) -o "$@" "$<"
 	@echo 'Finished compiling: $<'
 	@echo ' '
@@ -214,6 +212,6 @@ $(BUILDDIR)/%.cpp.o : %.cpp | $(FOLDERS)
 # pattern rule for assembling .s files
 $(BUILDDIR)/%.s.o : %.s | $(FOLDERS)
 	@echo 'Assembling file: $<'
-	@echo 'Invoking: ARM Sourcery Linux GCC Assembler'
+	@echo 'Invoking: ARM Linux GCC Assembler'
 	$(CC) $(ASFLAGS) -o "$@" "$<"
 	@echo 'Finished assembling: $<'

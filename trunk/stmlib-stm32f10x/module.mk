@@ -20,11 +20,4 @@
 
 # This file is used for configuration of the build system.
 
-SRCS += \
-    src/main.c \
-    src/protocol.c \
-    src/circularbuffer_u8.c
-
-HDRS += \
-    src/protocol.h \
-    src/circularbuffer_u8.h
+HDRS += stmlib-stm32f10x/stm32f10x_conf.h

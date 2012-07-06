@@ -20,4 +20,5 @@
 
 # This file is used for configuration of the build system.
 
-HDRS += stmlib/stm32f10x_conf.h
+SRCS += common/syscalls.c \
+    common/cppdeclarations.cpp

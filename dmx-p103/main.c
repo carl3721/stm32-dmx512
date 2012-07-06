@@ -417,12 +417,12 @@ int main() {
             protocol_receive(circularbuffer_u8_pop(&usart2_rx_buffer));
         }
 
+        // DMX send period done
         if (dmx_sent) {
             dmx_sent = 0;
 
-/*
+            // toggle run led to denote DMX packet sent
             toggle_runled();
-*/
             
             // send tick to the protocol, 40 milliseconds have lapsed
             protocol_tick();

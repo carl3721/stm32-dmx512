@@ -44,8 +44,10 @@
 
 /**
  * @brief Constant defining the timeout threshold in milliseconds.
+ * 
+ * 60 milliseconds corresponds to 1.5 DMX periods.
  */
-#define PROTOCOL_TIMEOUT_THRESHOLD 100
+#define PROTOCOL_TIMEOUT_THRESHOLD 60
 
 /*
  * -------------------- Type definitions ---------------------------------------

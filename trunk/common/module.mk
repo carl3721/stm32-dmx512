@@ -21,4 +21,7 @@
 # This file is used for configuration of the build system.
 
 SRCS += common/syscalls.c \
-    common/cppdeclarations.cpp
+    common/cppdeclarations.cpp \
+    common/circularbuffer_u8.c
+
+HDRS += common/circularbuffer_u8.h

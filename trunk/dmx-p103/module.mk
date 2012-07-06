@@ -22,9 +22,7 @@
 
 SRCS += \
     dmx-p103/main.c \
-    dmx-p103/protocol.c \
-    dmx-p103/circularbuffer_u8.c
+    dmx-p103/protocol.c
 
 HDRS += \
-    dmx-p103/protocol.h \
-    dmx-p103/circularbuffer_u8.h
+    dmx-p103/protocol.h

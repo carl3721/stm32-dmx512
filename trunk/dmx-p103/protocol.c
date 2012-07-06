@@ -45,7 +45,7 @@
 /**
  * @brief Constant defining the timeout threshold in milliseconds.
  */
-#define PROTOCOL_TIMEOUT_THRESHOLD 30
+#define PROTOCOL_TIMEOUT_THRESHOLD 100
 
 /*
  * -------------------- Type definitions ---------------------------------------
@@ -177,7 +177,7 @@ void protocol_tick() {
 
     // if there is data in the rx buffer, increment the timeout counter
     if (protocol_rx_count != 0) {
-        protocol_rx_timeout++;
+        protocol_rx_timeout += 40;
     }
 
     // if the timeout counter exceeds the threshold, reset rx count and timeout

@@ -55,7 +55,7 @@ extern "C" {
      */
 
     /**
-     * @brief Ticker method. Should be called every millisecond.
+     * @brief Ticker method. Should be called every 40 milliseconds.
      * 
      * The protocol handler uses this information to determine the packet
      * timeout condition.
@@ -76,8 +76,7 @@ extern "C" {
      * @brief Sends a single byte over the communications channel.
      * 
      * This method must be implemented by the application. It is used by the
-     * protocol stack to send return messages. This method must be implemented
-     * in a blocking way.
+     * protocol stack to send return messages.
      */
     extern void app_send_byte(uint8_t byte);
 

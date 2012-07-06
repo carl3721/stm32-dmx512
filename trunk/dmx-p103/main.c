@@ -261,6 +261,11 @@ circularbuffer_u8_s usart2_rx_buffer;
  * -------------------- Prototypes ---------------------------------------------
  */
 
+/**
+ * @brief Performs the initialization of the program.
+ */
+void init();
+
 /*
  * -------------------- Method implementations ---------------------------------
  */

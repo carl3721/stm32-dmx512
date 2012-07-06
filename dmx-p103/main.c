@@ -36,6 +36,7 @@
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_rcc.h"
+#include "stm32f10x_tim.h"
 #include "stm32f10x_usart.h"
 
 /*
@@ -234,6 +235,11 @@ circularbuffer_u8_s usart2_tx_buffer;
  */
 circularbuffer_u8_s usart2_rx_buffer;
 
+/**
+ * @brief Flag indicating that the DMX packet was sent out over USART1
+ */
+volatile uint8_t dmx_sent;
+
 /*
  * -------------------- Prototypes ---------------------------------------------
  */
@@ -270,12 +276,15 @@ void init() {
 
     // enable USART1
     RCC_APB2PeriphClockCmd(RCC_APB2ENR_USART1EN, ENABLE);
-    
+
     // enable USART2
     RCC_APB1PeriphClockCmd(RCC_APB1ENR_USART2EN, ENABLE);
 
     // enable TIM2
     RCC_APB1PeriphClockCmd(RCC_APB1ENR_TIM2EN, ENABLE);
+
+    // enable TIM3
+    RCC_APB1PeriphClockCmd(RCC_APB1ENR_TIM3EN, ENABLE);
 
     /*
      * Step 2: Set the pin configurations for all required pins.
@@ -358,11 +367,22 @@ void init() {
     // initialize the RX and TX buffer for USART2
     circularbuffer_u8_init(&usart2_rx_buffer, USART2_BUFFER_SIZE, usart2_rx_arr);
     circularbuffer_u8_init(&usart2_tx_buffer, USART2_BUFFER_SIZE, usart2_tx_arr);
-    
+
     /*
-     * Step 4: Interrupt configuration. 
+     * Step 4: Configure TIM3 for interrupt at 25 Hz.
      */
-    
+
+    // configure TIM3
+    TIM3->PSC = 71; // prescaler of 72
+    TIM3->ARR = 40000; // period of 40000 for 25Hz
+    TIM3->EGR = 1; // only set update generation
+    TIM3->DIER = 1; // only enable update interrupt
+    TIM3->CR1 = 1; // only set counter enable
+
+    /*
+     * Step 5: Interrupt configuration. 
+     */
+
     // configure the USART2 receive interrupt.
     USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
 
@@ -370,23 +390,12 @@ void init() {
     NVIC_SetPriority(USART2_IRQn, 4);
     NVIC_EnableIRQ(USART2_IRQn);
 
+    // enable TIM3 interrupt and set priority
+    NVIC_SetPriority(TIM3_IRQn, 2);
+    NVIC_EnableIRQ(TIM3_IRQn);
+
     // set SysTick interrupt as higher priority then USART interrupt
     NVIC_SetPriority(SysTick_IRQn, 3);
-
-    // configure system tick timer for 1 millisecond system tick
-    SysTick_Config(SystemCoreClock / 1000);
-}
-
-/**
- * @brief System tick interrupt handler.
- */
-void SysTick_Handler() {
-    divider++;
-    if (divider == 40) {
-        divider = 0;
-        update = 1;
-    }
-    protocol_tick();
 }
 
 /**
@@ -405,121 +414,68 @@ int main() {
     // application main loop
     while (1) {
 
-        /*
-         * Section 1: deal with the communications.
-         */
-
         // take all the bytes that have arrived in the RX register and 
         // give them to the protocol stack
-        while(circularbuffer_u8_empty(&usart2_rx_buffer) != 1) {
+        while (circularbuffer_u8_empty(&usart2_rx_buffer) != 1) {
             protocol_receive(circularbuffer_u8_pop(&usart2_rx_buffer));
         }
-        
-        /*
-         * Section 2: Update the DMX value of the connected devices if needed.
-         * The update is triggered at 25 Hz by the @ref SysTick_Handler.
-         */
 
-        // if the periodic update of the DMX devices has been triggered,
-        // run the update
-        if (update) {
-            
-            // reset the update flag first
-            update = 0;
+        if (dmx_sent) {
+            dmx_sent = 0;
 
-            // toggle the run led to indicate that the main loop is alive
             toggle_runled();
-
-            /*
-             * BEGIN Time critical code
-             */
-
-            // bring the TX pin under GPIO control
-            // this has the added effect that the pin is low
-            set_pa9_gpio();
-
-            // set the DE and (not)RE lines high
-            toggle_usart1_de_re();
-
-            // wait 88 microseconds for the DMX break
-            tim2_wait_usec(88);
-
-            // bring the TX pin under UART control
-            // this has the added effect that the pin is high
-            set_pa9_uart();
-
-            // wait 8 microseconds for the MAB (Mark After Break)
-            tim2_wait_usec(8);
-
-            // transmit the DMX data
-            for (uint16_t i = 0; i < 513; i++) {
-
-                // transmit the byte with a blocking send
-                usart1_tx_and_wait(dmx_data[i]);
-
-            }
-
-            // wait one additional character time before releasing the line
-            tim2_wait_usec(44);
-
-            // release the line
-            toggle_usart1_de_re();
-
-            // wait at least 250 microseconds in between the frames
-            tim2_wait_usec(250);
-
-            /*
-             * END Time critical code
-             */
+            
+            // send tick to the protocol, 40 milliseconds have lapsed
+            protocol_tick();
         }
     }
     return 0;
 }
 
 void app_set_rgb(uint16_t addr, uint8_t r, uint8_t g, uint8_t b) {
-    
+
     // save the colors in the DMX data
     dmx_data[addr] = r;
     dmx_data[addr + 1] = g;
     dmx_data[addr + 2] = b;
-    
+
     // tell the protocol that we are done
     protocol_set_rgb_done(addr);
 }
 
 void app_get_rgb(uint16_t addr) {
-    
+
     // get the DMX data
     uint8_t red = dmx_data[addr];
     uint8_t green = dmx_data[addr + 1];
     uint8_t blue = dmx_data[addr + 2];
-    
+
     // send the data to the protocol
     protocol_get_rgb_done(addr, red, green, blue);
 }
 
 void app_set(uint16_t from, uint16_t to, uint8_t c) {
-    
+
     // save the DMX data
     for (uint16_t i = from; i <= to; i++) {
         dmx_data[i] = c;
     }
-    
+
     // tell the protocol that we are done
     protocol_set_done(from, to);
 }
 
 void app_get(uint16_t addr) {
-    
+
     // get the DMX data
     uint8_t col = dmx_data[addr];
-    
+
     // send the data to the protocol
     protocol_get_done(addr, col);
 }
 
 void app_send_byte(uint8_t byte) {
-    
+
     // send out the byte over USART2
     usart2_send(byte);
 }
@@ -574,4 +530,52 @@ void usart2_send(uint8_t byte) {
         USART2->CR1 |= (1 << 6);
         USART2->DR = circularbuffer_u8_pop(&usart2_tx_buffer);
     }
+}
+
+void TIM3_IRQHandler() {
+
+    // unset the interrupt flag
+    TIM3->SR &= ~0x0001;
+
+    /*
+     * BEGIN Time critical code
+     */
+
+    // bring the TX pin under GPIO control
+    // this has the added effect that the pin is low
+    set_pa9_gpio();
+
+    // set the DE and (not)RE lines high
+    toggle_usart1_de_re();
+
+    // wait 88 microseconds for the DMX break
+    tim2_wait_usec(88);
+
+    // bring the TX pin under UART control
+    // this has the added effect that the pin is high
+    set_pa9_uart();
+
+    // wait 8 microseconds for the MAB (Mark After Break)
+    tim2_wait_usec(8);
+
+    // transmit the DMX data
+    for (uint16_t i = 0; i < 513; i++) {
+
+        // transmit the byte with a blocking send
+        usart1_tx_and_wait(dmx_data[i]);
+
+    }
+
+    // wait one additional character time before releasing the line
+    tim2_wait_usec(44);
+
+    // release the line
+    toggle_usart1_de_re();
+    
+    /*
+     * END Time critical code
+     */
+    
+    // flag DMX packet as sent
+    dmx_sent = 1;
 }

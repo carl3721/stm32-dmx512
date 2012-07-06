@@ -178,29 +178,6 @@
         while(!(USART1->SR & (1 << 6))) { }
 
 /**
- * @brief Transmits the given byte over USART2 and waits until the transmit is 
- * complete.
- * 
- * This implements a blocking send for USART2.
- * 
- * This method is implemented as a register call because it is highly 
- * performance critical.
- * 
- * This method is implemented as a define, to ensure that the code is inlined by
- * the compiler. This is done for performance reasons.
- * 
- * GCC treats the inline keyword as an optimization hint. The compiler may still
- * ignore the keyword and not inline the function. This is avoided by using a
- * define.
- * 
- * @param X The byte to send out on USART2.
- * @return None.
- */
-#define usart2_tx_and_wait(X) \
-        USART2->DR = X; \
-        while(!(USART2->SR & (1 << 6))) { }
-
-/**
  * @brief Buffer size for the USART2 tx and rx buffer.
  */
 #define USART2_BUFFER_SIZE 256
@@ -238,22 +215,22 @@ volatile uint8_t update;
 volatile uint8_t divider;
 
 /**
- * @brief Backing array for the USART2 tx buffer.
+ * @brief Backing array for the USART2 TX buffer.
  */
 volatile uint8_t usart2_tx_arr[USART2_BUFFER_SIZE];
 
 /**
- * @brief Backing array for the USART2 rx buffer.
+ * @brief Backing array for the USART2 RX buffer.
  */
 volatile uint8_t usart2_rx_arr[USART2_BUFFER_SIZE];
 
 /**
- * @brief USART2 tx circular buffer.
+ * @brief USART2 TX circular buffer.
  */
 circularbuffer_u8_s usart2_tx_buffer;
 
 /**
- * @brief USART2 rx circular buffer.
+ * @brief USART2 RX circular buffer.
  */
 circularbuffer_u8_s usart2_rx_buffer;
 
@@ -265,6 +242,15 @@ circularbuffer_u8_s usart2_rx_buffer;
  * @brief Performs the initialization of the program.
  */
 void init();
+
+/**
+ * @brief Sends out the given byte over USART2.
+ * 
+ * This send is non-blocking.
+ * 
+ * @param byte The byte to send.
+ */
+void usart2_send(uint8_t byte);
 
 /*
  * -------------------- Method implementations ---------------------------------
@@ -302,7 +288,7 @@ void init() {
     pinCfg.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOA, &pinCfg);
 
-    // configure runled pin
+    // configure LED pin
     pinCfg.GPIO_Mode = GPIO_Mode_Out_PP;
     pinCfg.GPIO_Pin = GPIO_Pin_12;
     GPIO_Init(GPIOC, &pinCfg);
@@ -369,13 +355,23 @@ void init() {
     // enable USART2
     USART_Cmd(USART2, ENABLE);
 
-    // initialize the rx and tx buffer for USART2
+    // initialize the RX and TX buffer for USART2
     circularbuffer_u8_init(&usart2_rx_buffer, USART2_BUFFER_SIZE, usart2_rx_arr);
     circularbuffer_u8_init(&usart2_tx_buffer, USART2_BUFFER_SIZE, usart2_tx_arr);
     
     /*
      * Step 4: Interrupt configuration. 
      */
+    
+    // configure the USART2 receive interrupt.
+    USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+
+    // enable USART2 interrupt and set priority
+    NVIC_SetPriority(USART2_IRQn, 4);
+    NVIC_EnableIRQ(USART2_IRQn);
+
+    // set SysTick interrupt as higher priority then USART interrupt
+    NVIC_SetPriority(SysTick_IRQn, 3);
 
     // configure system tick timer for 1 millisecond system tick
     SysTick_Config(SystemCoreClock / 1000);
@@ -413,14 +409,10 @@ int main() {
          * Section 1: deal with the communications.
          */
 
-        // check if there are bytes in the rx register
-        if (USART2->SR & USART_FLAG_RXNE) {
-
-            // read the byte, this resets the RXNE flag
-            uint8_t byte = USART2->DR;
-
-            // send the byte to the protocol
-            protocol_receive(byte);
+        // take all the bytes that have arrived in the RX register and 
+        // give them to the protocol stack
+        while(circularbuffer_u8_empty(&usart2_rx_buffer) != 1) {
+            protocol_receive(circularbuffer_u8_pop(&usart2_rx_buffer));
         }
         
         /*
@@ -486,7 +478,7 @@ int main() {
 
 void app_set_rgb(uint16_t addr, uint8_t r, uint8_t g, uint8_t b) {
     
-    // save the colors in the dmx data
+    // save the colors in the DMX data
     dmx_data[addr] = r;
     dmx_data[addr + 1] = g;
     dmx_data[addr + 2] = b;
@@ -497,7 +489,7 @@ void app_set_rgb(uint16_t addr, uint8_t r, uint8_t g, uint8_t b) {
 
 void app_get_rgb(uint16_t addr) {
     
-    // get the dmx data
+    // get the DMX data
     uint8_t red = dmx_data[addr];
     uint8_t green = dmx_data[addr + 1];
     uint8_t blue = dmx_data[addr + 2];
@@ -508,7 +500,7 @@ void app_get_rgb(uint16_t addr) {
 
 void app_set(uint16_t from, uint16_t to, uint8_t c) {
     
-    // save the dmx data
+    // save the DMX data
     for (uint16_t i = from; i <= to; i++) {
         dmx_data[i] = c;
     }
@@ -519,7 +511,7 @@ void app_set(uint16_t from, uint16_t to, uint8_t c) {
 
 void app_get(uint16_t addr) {
     
-    // get the dmx data
+    // get the DMX data
     uint8_t col = dmx_data[addr];
     
     // send the data to the protocol
@@ -527,6 +519,59 @@ void app_get(uint16_t addr) {
 }
 
 void app_send_byte(uint8_t byte) {
-    // send the byte out over usart2 in a blocking way
-    usart2_tx_and_wait(byte);
+    
+    // send out the byte over USART2
+    usart2_send(byte);
+}
+
+void USART2_IRQHandler() {
+
+    // RX interrupt
+    if (USART2->SR & USART_FLAG_RXNE) {
+
+        // clear interrupt bit
+        USART2->SR &= !USART_FLAG_RXNE;
+
+        // retrieve the byte
+        uint8_t byte = USART2->DR;
+
+        // store the byte in the RX buffer if there is space, otherwise drop it
+        if (circularbuffer_u8_full(&usart2_rx_buffer) == 0) {
+            circularbuffer_u8_push(&usart2_rx_buffer, byte);
+        }
+    }
+
+    // TX interrupt
+    if (USART2->SR & USART_FLAG_TC) {
+
+        // clear interrupt bit
+        USART2->SR &= !USART_FLAG_TC;
+
+        // if there is more data to be sent, send the next byte
+        // otherwise, disable the TC interrupt
+        if (circularbuffer_u8_empty(&usart2_tx_buffer) != 1) {
+            USART2->DR = circularbuffer_u8_pop(&usart2_tx_buffer);
+        } else {
+            USART2->CR1 &= ~(1 << 6);
+        }
+    }
+}
+
+void usart2_send(uint8_t byte) {
+
+    // if the TX buffer is full, drop bytes
+    if (circularbuffer_u8_full(&usart2_tx_buffer)) {
+        return;
+    }
+
+    // add the byte to the buffer
+    circularbuffer_u8_push(&usart2_tx_buffer, byte);
+
+    // if we must, start the send
+    if ((USART2->CR1 & (1 << 6)) == 0) {
+
+        // enable the TC interrupt and send the byte
+        USART2->CR1 |= (1 << 6);
+        USART2->DR = circularbuffer_u8_pop(&usart2_tx_buffer);
+    }
 }

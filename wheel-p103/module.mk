@@ -1,7 +1,7 @@
 # module.mk
 # 
 # STM32 DMX512
-# Copyright (C) 2011 Erik Van Hamme, all rights reserved
+# Copyright (C) 2012 Erik Van Hamme, all rights reserved
 # 
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -20,10 +20,7 @@
 
 # This file is used for configuration of the build system.
 
-SRCS += common/syscalls.c \
-    common/cppdeclarations.cpp \
-    common/circularbuffer_u8.c \
-    common/protocol.c
+SRCS += \
+    wheel-p103/main.c
 
-HDRS += common/circularbuffer_u8.h \
-    common/protocol.h
+HDRS += 

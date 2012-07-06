@@ -204,7 +204,7 @@ void init() {
 
     // configure TIM3
     TIM3->PSC = 71; // prescaler of 72
-    TIM3->ARR = 38000; // period of 40000 for 25Hz
+    TIM3->ARR = 40000; // period of 40000 for 25Hz
     TIM3->EGR = 1; // only set update generation
     TIM3->DIER = 1; // only enable update interrupt
     TIM3->CR1 = 1; // only set counter enable

@@ -20,26 +20,26 @@
 
 # This file is used for configuration of the build system.
 
-SRCS += stmlib-stm32f10x/src/misc.c \
-	stmlib-stm32f10x/src/stm32f10x_adc.c \
-	stmlib-stm32f10x/src/stm32f10x_bkp.c \
-	stmlib-stm32f10x/src/stm32f10x_can.c \
-	stmlib-stm32f10x/src/stm32f10x_cec.c \
-	stmlib-stm32f10x/src/stm32f10x_crc.c \
-	stmlib-stm32f10x/src/stm32f10x_dac.c \
-	stmlib-stm32f10x/src/stm32f10x_dbgmcu.c \
-	stmlib-stm32f10x/src/stm32f10x_dma.c \
-	stmlib-stm32f10x/src/stm32f10x_exti.c \
-	stmlib-stm32f10x/src/stm32f10x_flash.c \
-	stmlib-stm32f10x/src/stm32f10x_fsmc.c \
-	stmlib-stm32f10x/src/stm32f10x_gpio.c \
-	stmlib-stm32f10x/src/stm32f10x_i2c.c \
-	stmlib-stm32f10x/src/stm32f10x_iwdg.c \
-	stmlib-stm32f10x/src/stm32f10x_pwr.c \
-	stmlib-stm32f10x/src/stm32f10x_rcc.c \
-	stmlib-stm32f10x/src/stm32f10x_rtc.c \
-	stmlib-stm32f10x/src/stm32f10x_sdio.c \
-	stmlib-stm32f10x/src/stm32f10x_spi.c \
-	stmlib-stm32f10x/src/stm32f10x_tim.c \
-	stmlib-stm32f10x/src/stm32f10x_usart.c \
-	stmlib-stm32f10x/src/stm32f10x_wwdg.c  
+SRCS += libp103/stmlib-stm32f10x/src/misc.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_adc.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_bkp.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_can.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_cec.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_crc.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_dac.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_dbgmcu.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_dma.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_exti.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_flash.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_fsmc.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_gpio.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_i2c.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_iwdg.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_pwr.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_rcc.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_rtc.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_sdio.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_spi.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_tim.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_usart.c \
+	libp103/stmlib-stm32f10x/src/stm32f10x_wwdg.c  

@@ -25,7 +25,7 @@ OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 GROUP(-lgcc -lc -lm)
 ENTRY(Reset_Handler)
 
-INCLUDE memory-p103.ld
+INCLUDE buildsys/memory-p103.ld
 
 _eram = ORIGIN( ram ) + LENGTH( ram );
 

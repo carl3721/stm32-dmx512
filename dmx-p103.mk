@@ -27,11 +27,11 @@ export PROJECT_NAME := dmx-p103
 # Each directory will be searched for a recursive makefile.
 SUBDIRS := \
 	dmx-p103 \
-	cmsis-stm32f10x \
-	stmlib-stm32f10x \
-	stmlib-stm32f10x/inc \
-	stmlib-stm32f10x/src \
-	common
+	libp103/cmsis-stm32f10x \
+	libp103/stmlib-stm32f10x \
+	libp103/stmlib-stm32f10x/inc \
+	libp103/stmlib-stm32f10x/src \
+	libcommon/common
 
 # The compilation mode. Choose between "debug" and "release".
 MODE ?= debug
@@ -92,4 +92,4 @@ export INTERNAL_DOCS := NO
 export HIDE_UNDOC_MEMBERS := NO
 
 # Include the buildrules
-include buildrules.mk
+include buildsys/buildrules.mk

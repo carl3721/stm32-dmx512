@@ -23,8 +23,15 @@
 # change the project name based on the type of build
 export PROJECT := $(PROJECT_NAME)
 
+ifeq ($(BOARD),p103)
+ARCH = -mcpu=cortex-m3 -mthumb
+endif
+ifeq ($(BOARD),p407)
+ARCH = -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+endif
+
 # build dir is dependent on the mode
-BUILDDIR := $(MODE)
+BUILDDIR := $(MODE)/$(BOARD)
 
 # output artefacts
 ELF := $(BUILDDIR)/$(PROJECT).elf

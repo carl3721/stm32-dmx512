@@ -65,9 +65,6 @@ OOCDCFGS := interface/olimex-arm-usb-ocd.cfg target/stm32f1x.cfg
 # Each command must be specified in the -c "..." format.
 OOCDCMDS = -c "init" -c "reset halt" -c "stm32f1x mass_erase 0" -c "flash write_image $(HEX)" -c "reset run" -c "shutdown"
 
-# The target architecture.
-ARCH := -mcpu=cortex-m3 -mthumb
-
 # List of external defines that will be passed to the compiler.
 #
 # Add the defines here including the -D tag. For example:

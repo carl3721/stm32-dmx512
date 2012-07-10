@@ -27,15 +27,13 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-/**
- * @brief  Return the Main Stack Pointer
- *
- * @return Main Stack Pointer
- *
- * Return the current value of the MSP (main stack pointer)
- * Cortex processor register
- */
-extern uint32_t __get_MSP(void);
+#ifdef STM32F10X_MD
+#include "stm32f10x.h"
+#endif
+
+#ifdef STM32F4XX
+#include "stm32f4xx.h"
+#endif
 
 #undef errno
 extern int errno;

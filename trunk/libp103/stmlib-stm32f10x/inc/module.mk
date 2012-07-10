@@ -20,26 +20,26 @@
 
 # This file is used for configuration of the build system.
 
-HDRS += stmlib-stm32f10x/inc/stm32f10x_cec.h \
-	stmlib-stm32f10x/inc/stm32f10x_bkp.h \
-	stmlib-stm32f10x/inc/stm32f10x_exti.h \
-	stmlib-stm32f10x/inc/stm32f10x_crc.h \
-	stmlib-stm32f10x/inc/misc.h \
-	stmlib-stm32f10x/inc/stm32f10x_adc.h \
-	stmlib-stm32f10x/inc/stm32f10x_wwdg.h \
-	stmlib-stm32f10x/inc/stm32f10x_pwr.h \
-	stmlib-stm32f10x/inc/stm32f10x_flash.h \
-	stmlib-stm32f10x/inc/stm32f10x_gpio.h \
-	stmlib-stm32f10x/inc/stm32f10x_rtc.h \
-	stmlib-stm32f10x/inc/stm32f10x_spi.h \
-	stmlib-stm32f10x/inc/stm32f10x_tim.h \
-	stmlib-stm32f10x/inc/stm32f10x_sdio.h \
-	stmlib-stm32f10x/inc/stm32f10x_usart.h \
-	stmlib-stm32f10x/inc/stm32f10x_fsmc.h \
-	stmlib-stm32f10x/inc/stm32f10x_iwdg.h \
-	stmlib-stm32f10x/inc/stm32f10x_dac.h \
-	stmlib-stm32f10x/inc/stm32f10x_rcc.h \
-	stmlib-stm32f10x/inc/stm32f10x_can.h \
-	stmlib-stm32f10x/inc/stm32f10x_dma.h \
-	stmlib-stm32f10x/inc/stm32f10x_dbgmcu.h \
-	stmlib-stm32f10x/inc/stm32f10x_i2c.h 
+HDRS += libp103/stmlib-stm32f10x/inc/stm32f10x_cec.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_bkp.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_exti.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_crc.h \
+	libp103/stmlib-stm32f10x/inc/misc.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_adc.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_wwdg.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_pwr.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_flash.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_gpio.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_rtc.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_spi.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_tim.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_sdio.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_usart.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_fsmc.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_iwdg.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_dac.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_rcc.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_can.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_dma.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_dbgmcu.h \
+	libp103/stmlib-stm32f10x/inc/stm32f10x_i2c.h 

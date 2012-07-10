@@ -20,4 +20,4 @@
 
 # This file is used for configuration of the build system.
 
-HDRS += stmlib-stm32f10x/stm32f10x_conf.h
+HDRS += libp103/stmlib-stm32f10x/stm32f10x_conf.h

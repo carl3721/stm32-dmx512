@@ -54,10 +54,10 @@ CPPFLAGS     = $(COMMONFLAGS) -fno-rtti
 ASFLAGS      = -Wall -O$(OPTIMISATION) -c $(ARCH)
 LFLAGS       = -nostartfiles -nodefaultlibs -nostdlib -Xlinker --gc-sections -fno-exceptions -Wl,-Map,$(MAP) $(ARCH)
 ifeq ($(BOARD),p103)
-LDSCRIPT     = link-p103.ld
+LDSCRIPT     = buildsys/link-p103.ld
 endif
 ifeq ($(BOARD),p407)
-LDSCRIPT     = link-p407.ld
+LDSCRIPT     = buildsys/link-p407.ld
 endif
 endif
 
@@ -70,10 +70,10 @@ CPPFLAGS     = $(COMMONFLAGS) -fno-rtti
 ASFLAGS      = -Wall -O$(OPTIMISATION) -c $(ARCH) -g3 -gdwarf-2
 LFLAGS       = -nostartfiles -nodefaultlibs -nostdlib -Xlinker --gc-sections -fno-exceptions -Wl,-Map,$(MAP) $(ARCH)
 ifeq ($(BOARD),p103)
-LDSCRIPT    ?= link_debug-p103.ld
+LDSCRIPT    ?= buildsys/link_debug-p103.ld
 endif
 ifeq ($(BOARD),p407)
-LDSCRIPT     = link_debug-p407.ld
+LDSCRIPT     = buildsys/link_debug-p407.ld
 endif
 endif
 
@@ -117,7 +117,7 @@ DOXYFILE += doxyfile
 endif
 
 # phony targets
-.PHONY: clean size all doc flash serialflash info gdb flashgdb
+.PHONY: clean size all doc flash info
 
 # the default target is 'all' 
 all: $(HEX) size

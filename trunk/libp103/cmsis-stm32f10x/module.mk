@@ -20,10 +20,10 @@
 
 # This file is used for configuration of the build system.
 
-SRCS += cmsis-stm32f10x/core_cm3.c \
-	cmsis-stm32f10x/startup_stm32f10x.c \
-	cmsis-stm32f10x/system_stm32f10x.c
+SRCS += libp103/cmsis-stm32f10x/core_cm3.c \
+	libp103/cmsis-stm32f10x/startup_stm32f10x.c \
+	libp103/cmsis-stm32f10x/system_stm32f10x.c
 
-HDRS += cmsis-stm32f10x/core_cm3.h \
-	cmsis-stm32f10x/stm32f10x.h \
-	cmsis-stm32f10x/system_stm32f10x.h
+HDRS += libp103/cmsis-stm32f10x/core_cm3.h \
+	libp103/cmsis-stm32f10x/stm32f10x.h \
+	libp103/cmsis-stm32f10x/system_stm32f10x.h

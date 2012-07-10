@@ -20,10 +20,10 @@
 
 # This file is used for configuration of the build system.
 
-SRCS += common/syscalls.c \
-    common/cppdeclarations.cpp \
-    common/circularbuffer_u8.c \
-    common/protocol.c
+SRCS += libcommon/common/syscalls.c \
+    libcommon/common/cppdeclarations.cpp \
+    libcommon/common/circularbuffer_u8.c \
+    libcommon/common/protocol.c
 
-HDRS += common/circularbuffer_u8.h \
-    common/protocol.h
+HDRS += libcommon/common/circularbuffer_u8.h \
+    libcommon/common/protocol.h

@@ -33,6 +33,7 @@
 
 #include "circularbuffer_u8.h"
 #include "hw_usart.h"
+#include "packetizer.h"
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_rcc.h"
@@ -220,6 +221,11 @@ volatile uint8_t divider;
  */
 volatile uint8_t dmx_sent;
 
+/**
+ * @brief Packetizer for usart2.
+ */
+packetizer_s usart2_packetizer;
+
 /*
  * -------------------- Prototypes ---------------------------------------------
  */
@@ -302,7 +308,7 @@ void init() {
     // The use of flow control implies that you must close the solder
     // bridges on the PCB of the STM32-P103 development board as seen in the
     // schematic.
-	hw_usart_init(HW_USART2, 38400, USART2_BUFFER_SIZE, USART2_BUFFER_SIZE, true);
+    hw_usart_init(HW_USART2, 38400, USART2_BUFFER_SIZE, USART2_BUFFER_SIZE, true);
 
     /*
      * Step 4: Configure TIM3 for interrupt at 25 Hz.
@@ -336,25 +342,40 @@ void init() {
  * @return Should never return.
  */
 int main() {
+    
+    // vars
+    uint8_t rx;
+    uint8_t packet[6];
 
     // initialize the hardware
     init();
-uint32_t channel = 0;
-uint8_t rx = 0;
+
+    // initialize the packetizer
+    packetizer_init(&usart2_packetizer);
+    
     // application main loop
     while (1) {
 
         // take all the bytes that have arrived in the RX register and 
-        // give them to the protocol stack
-	while(hw_usart_rx(HW_USART2, &rx)) {
-		dmx_data[channel + 1] = rx;
-		channel++;
-		channel %= 6;
-	}
+        // give them to the packetizer
+        while (hw_usart_rx(HW_USART2, &rx)) {
+            packetizer_rx(&usart2_packetizer, rx);
+        }
 
+        // if there is a full 6 byte packet, take it and set the data
+        if (packetizer_complete(&usart2_packetizer) == true) {
+            packetizer_packet(&usart2_packetizer, (uint8_t *) packet);
+            for (uint32_t i = 0; i < 6; i++) {
+                dmx_data[i + 1] = packet[i];
+            }
+        }
+        
         // DMX send period done
         if (dmx_sent) {
             dmx_sent = 0;
+            
+            // provide 40 msec tick to the packetizer
+            packetizer_tick(&usart2_packetizer);
 
             // toggle run led to denote DMX packet sent
             toggle_runled();
@@ -364,28 +385,28 @@ uint8_t rx = 0;
 }
 
 void hw_usart_init_pins(uint8_t usart) {
-	if (usart == HW_USART2) {
-		// configure USART2 pins: PA0-WKUP/USART2_CTS
-		GPIO_InitTypeDef pinCfg;
-		pinCfg.GPIO_Speed = GPIO_Speed_50MHz;
-		pinCfg.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-		pinCfg.GPIO_Pin = GPIO_Pin_0;
-		GPIO_Init(GPIOA, &pinCfg);
+    if (usart == HW_USART2) {
+        // configure USART2 pins: PA0-WKUP/USART2_CTS
+        GPIO_InitTypeDef pinCfg;
+        pinCfg.GPIO_Speed = GPIO_Speed_50MHz;
+        pinCfg.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+        pinCfg.GPIO_Pin = GPIO_Pin_0;
+        GPIO_Init(GPIOA, &pinCfg);
 
-		// configure USART2 pins: PA1/USART2_RTS
-		pinCfg.GPIO_Mode = GPIO_Mode_AF_PP;
-		pinCfg.GPIO_Pin = GPIO_Pin_1;
-		GPIO_Init(GPIOA, &pinCfg);
+        // configure USART2 pins: PA1/USART2_RTS
+        pinCfg.GPIO_Mode = GPIO_Mode_AF_PP;
+        pinCfg.GPIO_Pin = GPIO_Pin_1;
+        GPIO_Init(GPIOA, &pinCfg);
 
-		// configure USART2 pins: PA2/USART2_TX
-		pinCfg.GPIO_Pin = GPIO_Pin_2;
-		GPIO_Init(GPIOA, &pinCfg);
+        // configure USART2 pins: PA2/USART2_TX
+        pinCfg.GPIO_Pin = GPIO_Pin_2;
+        GPIO_Init(GPIOA, &pinCfg);
 
-		// configure USART2 pins: PA3/USART2_RX
-		pinCfg.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-		pinCfg.GPIO_Pin = GPIO_Pin_3;
-		GPIO_Init(GPIOA, &pinCfg);
-	}
+        // configure USART2 pins: PA3/USART2_RX
+        pinCfg.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+        pinCfg.GPIO_Pin = GPIO_Pin_3;
+        GPIO_Init(GPIOA, &pinCfg);
+    }
 }
 
 void TIM3_IRQHandler() {
@@ -427,11 +448,11 @@ void TIM3_IRQHandler() {
 
     // release the line
     toggle_usart1_de_re();
-    
+
     /*
      * END Time critical code
      */
-    
+
     // flag DMX packet as sent
     dmx_sent = 1;
 }

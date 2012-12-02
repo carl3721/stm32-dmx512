@@ -23,10 +23,14 @@
 SRCS += \
 	common/src/circularbuffer_u8.c \
 	common/src/cppdeclarations.cpp \
+	common/src/hw_crc32.c \
 	common/src/hw_usart.c \
+	common/src/packetizer.c \
 	common/src/syscalls.c
 
 HDRS += \
 	common/src/circularbuffer_u8.h \
-	common/src/hw_usart.h
+	common/src/hw_crc32.h \
+	common/src/hw_usart.h \
+	common/src/packetizer.h
 

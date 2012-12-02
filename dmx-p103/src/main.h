@@ -21,3 +21,13 @@
 
 /* This is the application main configuration file. Currently there are 
  * no specific configurations made, everything is on the default settings. */
+
+/**
+ * @brief We require 6 bytes for a set operation to be complete.
+ */ 
+#define PACKETIZER_LENGTH 6
+
+/**
+ * @brief A full packet should take less then 80 milliseconds to arrive.
+ */
+#define PACKETIZER_TIMEOUT_TICKS 2
